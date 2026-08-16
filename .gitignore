@@ -1,0 +1,22 @@
+# Build output
+/build/
+/build-release/
+/release/
+
+# CMake artifacts
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.dir/
+
+# Qt-generated files
+*_autogen/
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# Editor / OS junk
+.vscode/
+.idea/
+*.user
+Thumbs.db
