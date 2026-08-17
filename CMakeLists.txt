@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project("WellTool" VERSION 1.0.0 LANGUAGES CXX)
+project("WellTool" VERSION 1.0.1 LANGUAGES CXX)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -33,6 +33,6 @@ set( HEADERS
 	include/saveTheme.h
 )
 
-add_executable("WellTool" ${SOURCES} ${HEADERS} ${STYLES})
+add_executable("WellTool" WIN32 ${SOURCES} ${HEADERS} ${STYLES})
 include_directories(include)
 target_link_libraries("WellTool" Qt6::Widgets)
