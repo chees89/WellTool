@@ -22,6 +22,7 @@
 
 - [Overview](#overview)
 - [Features](#features)
+- [Download](#download)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
@@ -75,6 +76,14 @@ It's built entirely with **Qt6 Widgets** and modern **C++17**, with a hand-writt
 - Freely draggable along the screen edge
 - Resizable by dragging the bottom-left corner
 - **Light / Dark theme** toggle, applied instantly via Qt stylesheets and remembered between sessions
+
+---
+
+## Download
+
+Prebuilt Windows binaries (no need to install Qt or build anything yourself) are available on the [**Releases**](https://github.com/chees89/WellTool/releases) page — just grab the latest `.zip`, extract it anywhere, and run `WellTool.exe`.
+
+> **A note on the Windows security warning:** when you run the exe, Windows SmartScreen may show a blue "Windows protected your PC" prompt, or your antivirus might flag it as unrecognized. This is expected and not a sign of anything malicious — it just means the executable isn't digitally signed with a code-signing certificate (those cost money and require a registered business to obtain, which isn't practical for a free personal utility like this one). If you see the prompt, click **"More info" → "Run anyway"**. The full source is right here in this repo if you'd like to check exactly what's being built and run.
 
 ---
 
@@ -198,13 +207,13 @@ reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v WellTool /f
 
 - Undo history currently applies only to the Canvas — Notes and Calculator don't have their own undo stacks.
 - Notes with highlights are saved as HTML internally (so formatting survives reload inside WellTool), which means the `.md` file won't render as clean Markdown in external editors or on GitHub.
-- Windows builds currently require the Qt6 runtime to be present or bundled manually (see [Roadmap](#roadmap)).
+- Building from source requires the Qt6 runtime to be installed; this doesn't apply if you use the prebuilt zip from [Releases](https://github.com/chees89/WellTool/releases), which already bundles everything needed.
 
 ---
 
 ## Roadmap
 
-- [ ] Standalone Windows `.zip` release with bundled Qt6 DLLs — no separate Qt installation required
+- [x] Standalone Windows `.zip` release with bundled Qt6 DLLs — no separate Qt installation required
 - [ ] Linux packaging (AppImage)
 - [ ] Per-tab undo history (Notes, Calculator)
 
