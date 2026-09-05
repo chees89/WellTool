@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QColorDialog>
+#include <QPrinter>
 
 class notesWidget : public QWidget {
     Q_OBJECT
@@ -25,10 +26,15 @@ private:
     void saveWithDialog();
     void writeToFile(const QString& path);
     void applyHighlight();
+    void applyBold();
+    void applyItalic();
 
     QPlainTextEdit* textEdit;
     QString currentFilepath;
+    QString sidecarPath(const QString& pdfPath) const;
 
     QWidget* highlightPopup;
     QPushButton* highlightButton;
+    QPushButton* boldButton;
+    QPushButton* italicButton;
 };

@@ -40,7 +40,7 @@ notesWidget::notesWidget(QWidget* parent) : QWidget(parent),
 
     highlightPopup = new QWidget(this, Qt::Tool | Qt::FramelessWindowHint);
     highlightButton = new QPushButton("Highlight", highlightPopup);
-
+    
     QVBoxLayout* popupLayout = new QVBoxLayout(highlightPopup);
     popupLayout->setContentsMargins(4, 4, 4, 4);
     popupLayout->addWidget(highlightButton);
@@ -50,6 +50,15 @@ notesWidget::notesWidget(QWidget* parent) : QWidget(parent),
     connect(highlightButton, &QPushButton::clicked, [=]() {
         applyHighlight();
     });
+
+    boldButton = new QPushButton("B", highlightPopup);
+    italicButton = new QPushButton("I", highlightPopup);
+
+    popupLayout->addWidget(boldButton);
+    popupLayout->addWidget(italicButton);
+
+    connect(boldButton, &QPushButton::clicked, [=]() { applyBold(); });
+    connect(italicButton, &QPushButton::clicked, [=]() { applyItalic(); });
 
     connect(textEdit, &QPlainTextEdit::selectionChanged,
         this, &notesWidget::onSelectionChanged);
@@ -96,26 +105,55 @@ void notesWidget::applyHighlight() {
     highlightPopup->hide();
 }
 
+void notesWidget::applyBold() {
+    QTextCursor cursor = textEdit->textCursor();
+    if(!cursor.hasSelection()) { highlightPopup->hide(); return; }
+
+    bool isBold = cursor.charFormat().fontWeight() == QFont::Bold;
+    QTextCharFormat format;
+    format.setFontWeight(isBold ? QFont::Normal : QFont::Bold);
+    cursor.mergeCharFormat(format);
+
+    cursor.clearSelection();
+    textEdit->setTextCursor(cursor);
+    highlightPopup->hide();
+}
+
+void notesWidget::applyItalic() {
+    QTextCursor cursor = textEdit->textCursor();
+    if(!cursor.hasSelection()) { highlightPopup->hide(); return; }
+
+    bool isItalic = cursor.charFormat().fontItalic();
+    QTextCharFormat format;
+    format.setFontItalic(!isItalic);
+    cursor.mergeCharFormat(format);
+
+    cursor.clearSelection();
+    textEdit->setTextCursor(cursor);
+    highlightPopup->hide();
+}
+
 void notesWidget::writeToFile(const QString& path) {
-    QFile file(path);
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(path);
 
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream out(&file);
-
+    textEdit->document()->print(&printer);
+    
+    QFile sidecar(sidecarPath(path));
+    if(sidecar.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&sidecar);
         out << textEdit->document()->toHtml();
-        file.close();
+        sidecar.close();
     }
 }
 
 void notesWidget::saveWithDialog() {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save File", "", "Markdown Files (*.md)");
-
-    if(fileName.isEmpty()) {
-        return ;
-    }
+    QString fileName = QFileDialog::getSaveFileName(this, "Save File", "", "PDF Files (*.pdf)");
+    if(fileName.isEmpty()) return;
+    if(!fileName.endsWith(".pdf", Qt::CaseInsensitive)) fileName += ".pdf";
 
     writeToFile(fileName);
-
     currentFilepath = fileName;
 }
 
@@ -132,20 +170,18 @@ void notesWidget::saveNoteAs() {
     saveWithDialog();
 }
 
+QString notesWidget::sidecarPath(const QString& pdfPath) const {
+    return pdfPath + ".html";
+}
+
 void notesWidget::openNote() {
-    QString openFile = QFileDialog::getOpenFileName(this, "Open File", "", "Markdown Files (*.md)");
+QString openFile = QFileDialog::getOpenFileName(this, "Open File", "", "PDF Files (*.pdf)");
+    if(openFile.isEmpty()) return;
 
-    if(openFile.isEmpty()) {
-        return;
-    }
-
-    QFile file(openFile);
-
-    if(file.open(QIODevice::ReadOnly | QIODevice::Text)){
+    QFile file(sidecarPath(openFile));
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
-        QString content = in.readAll();
-
-        textEdit->document()->setHtml(content);
+        textEdit->document()->setHtml(in.readAll());
         file.close();
     }
 
