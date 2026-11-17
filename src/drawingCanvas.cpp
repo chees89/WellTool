@@ -1,20 +1,6 @@
 #include "drawingCanvas.h"
-#include <QWidget>
-#include <QMouseEvent>
-#include <QVector>
-#include <QColor>
-#include <QPainter>
-#include <QMenu>
-#include <QColorDialog>
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QSlider>
-#include <QDebug>
-#include <cmath>
-#include <QPushButton>
-#include <QKeyEvent>
 
-drawingCanvas::drawingCanvas(QWidget* parent) : QWidget(parent), 
+drawingCanvas::drawingCanvas(QWidget* parent) : QWidget(parent),
     penColor(Qt::black),
     penWidth(2),
     isLeftButtonPressed(false),
@@ -22,7 +8,7 @@ drawingCanvas::drawingCanvas(QWidget* parent) : QWidget(parent),
         setFocusPolicy(Qt::StrongFocus);
 }
 
-void drawingCanvas::mousePressEvent(QMouseEvent* event) {    
+void drawingCanvas::mousePressEvent(QMouseEvent* event) {
     if(event->button() == Qt::LeftButton) {
         if(isErasing) {
             isLeftButtonPressed = true;
@@ -34,14 +20,14 @@ void drawingCanvas::mousePressEvent(QMouseEvent* event) {
 
             eraseNearPoint(event->pos());
         }
-        else {    
-        
+        else {
+
             isLeftButtonPressed = true;
 
             UndoAction action;
             action.type = ActionType::Draw;
             undoStack.push_back(action);
-            
+
             Stroke newStroke;
             newStroke.color = penColor;
             newStroke.width = penWidth;
@@ -57,7 +43,7 @@ void drawingCanvas::mousePressEvent(QMouseEvent* event) {
                 widthDialog->activateWindow();
             }
 
-            else{            
+            else{
                 QDialog* dialog = new QDialog(this);
                 QSlider* slider = new QSlider(Qt::Vertical, dialog);
 
@@ -90,7 +76,7 @@ void drawingCanvas::mouseMoveEvent(QMouseEvent* event) {
     }
 
     else {
-    
+
         if(isLeftButtonPressed) {
             strokes.back().points.push_back(event->pos());
             auto yPos = event->pos().y();
@@ -127,7 +113,7 @@ void drawingCanvas::renderStrokes(QPainter& painter) const {
         else {
             for(int i = 0; i < stroke.points.size() - 1; i++) {
                     painter.drawLine(stroke.points[i], stroke.points[i+1]);
-            }    
+            }
         }
     }
 }
@@ -191,7 +177,7 @@ void drawingCanvas::eraseNearPoint(QPoint pos) {
         }
 
         if(!currentPiece.points.empty()) {
-            newStrokes.push_back(currentPiece); 
+            newStrokes.push_back(currentPiece);
         }
     }
     strokes = newStrokes;
@@ -213,6 +199,6 @@ void drawingCanvas::keyPressEvent(QKeyEvent* event) {
             }
         }
     }
-    
+
     update();
 }

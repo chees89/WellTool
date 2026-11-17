@@ -1,18 +1,4 @@
 #include "mainPanel.h"
-#include "screenDefinition.h"
-#include "saveTheme.h"
-#include "themeLoader.h"
-#include "drawingCanvas.h"
-#include "notesWidget.h"
-#include "calculator.h"
-#include <QWidget>
-#include <QDebug>
-#include <algorithm>
-#include <QApplication>
-#include <QGraphicsOpacityEffect>
-#include <QScrollArea>
-#include <QPushButton>
-#include <QResizeEvent>
 
 mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 	const int collapsedWidth = 20;
@@ -22,17 +8,17 @@ mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 
 	setWindowFlags(
 			Qt::FramelessWindowHint |
-			Qt::WindowStaysOnTopHint 
+			Qt::WindowStaysOnTopHint
 		);
 
 	resize(collapsedWidth, collapsedHeight);
-	
+
 	QSize screen = screenDefinition();
 	int width = screen.width();
 	int height = screen.height();
 
 	move(width - collapsedWidth, height - collapsedHeight);
-	
+
 	opacityEffect = new QGraphicsOpacityEffect();
 
 	tabs = new QTabWidget(this);
@@ -52,7 +38,7 @@ mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 	QWidget* canvasTabContent = new QWidget();
 	notesWidget* notes = new notesWidget();
 	QWidget* themes = new QWidget();
-	
+
 	scrollArea->setWidget(canvas);
 	canvas->resize(580, 1000);
 
@@ -63,7 +49,7 @@ mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 	QCheckBox* checkBox = new QCheckBox();
 	QHBoxLayout* boxLayout = new QHBoxLayout();
 	QHBoxLayout* buttonsLayout = new QHBoxLayout();
-	
+
 	boxLayout->setSpacing(10);
 
 	boxLayout->addWidget(checkBox);
@@ -74,10 +60,10 @@ mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 	buttonsLayout->addWidget(saveArt);
 
 	themes->setLayout(boxLayout);
-	
+
 	if(currentTheme == Dark) checkBox->setChecked(false);
 	else checkBox->setChecked(true);
-	
+
 	connect(checkBox, &QCheckBox::toggled, [this](bool checked) {
     			if(checked) applyTheme(Light);
     			else applyTheme(Dark);
@@ -90,9 +76,9 @@ mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 	connect(saveArt, &QPushButton::clicked, [=] {
 		canvas->saveAsImage();
 	});
-	
-	tabs->addTab(canvasTabContent, "Canvas");
+
 	tabs->addTab(notes, "Notes");
+	tabs->addTab(canvasTabContent, "Canvas");
 	tabs->addTab(calculator, "Calculator");
 	tabs->addTab(themes, "Themes");
 
@@ -110,13 +96,13 @@ mainPanel::mainPanel(QWidget* parent) : QWidget(parent) {
 		});
 
 	layout->setSizeConstraint(QLayout::SetNoConstraint);
-	
+
 	this->setLayout(layout);
 }
 
 void mainPanel::resizeEvent(QResizeEvent* event) {
 	if(!canvas || !scrollArea) return;
-	
+
 	auto scrollAreaVitalWidth = scrollArea->viewport()->width();
 	auto currentHeight = std::max(scrollArea->viewport()->height(), canvas->height());
 
@@ -146,7 +132,7 @@ void mainPanel::applyTheme(Colors theme) {
 	QApplication *app = static_cast<QApplication*>(QApplication::instance());
 
 	saveChanges(theme);
-	
+
 	if(theme == Dark) path = ":/dark.qss";
 	else path = ":/light.qss";
 
@@ -171,20 +157,20 @@ void mainPanel::mouseMoveEvent(QMouseEvent* event) {
 
 		setGeometry(new_x, this->y(), clampedWidth, clampedHeight);
 	}
-	
+
 	else {
 	const int collapsedWidth = 20;
 
 		isDragging = true;
 		QPoint globalMousePos = QCursor::pos();
 		QPoint differenceInPos = globalMousePos - mousePos;
-	
+
 		int mouseY = differenceInPos.y();
 		int geometryY = startGeometry.y();
 		int targetY = mouseY + geometryY;
 
 		auto screen = screenDefinition();
-	
+
 		auto screenHeight = screen.height();
 		auto windowHeight = this->height();
 
@@ -200,7 +186,7 @@ void mainPanel::mouseReleaseEvent(QMouseEvent* release) {
 		isResizing = false;
 		return;
 	}
-	
+
 	if(!isDragging) {
 		const int collapsedWidth = 20;
 		const int collapsedHeight = 50;
@@ -219,7 +205,7 @@ void mainPanel::mouseReleaseEvent(QMouseEvent* release) {
 		animation->setDuration(300);
 
 		animation->setStartValue(geometry);
-		
+
 		QPoint center = geometry.center();
 		auto centerY = center.y();
 		auto newYExpanded = centerY - halfHeight;
@@ -237,7 +223,7 @@ void mainPanel::mouseReleaseEvent(QMouseEvent* release) {
 					fadeAnimation->setDuration(150);
 					fadeAnimation->setStartValue(0.0);
 					fadeAnimation->setEndValue(1.0);
-					
+
 					tabs->show();
 
 					fadeAnimation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -247,9 +233,9 @@ void mainPanel::mouseReleaseEvent(QMouseEvent* release) {
 
 		}
 
-		else {	
+		else {
 			QPropertyAnimation* fadeAnimation = new QPropertyAnimation(opacityEffect, "opacity");
-			
+
 			fadeAnimation->setDuration(150);
 			fadeAnimation->setStartValue(1.0);
 			fadeAnimation->setEndValue(0.0);
@@ -258,9 +244,9 @@ void mainPanel::mouseReleaseEvent(QMouseEvent* release) {
 			currentPanelHeight = this->height();
 
 			connect(fadeAnimation, &QPropertyAnimation::finished, [=] {
-						QRect targetGeometryFolded(width-collapsedWidth, limitationFolded, collapsedWidth, collapsedHeight); 
+						QRect targetGeometryFolded(width-collapsedWidth, limitationFolded, collapsedWidth, collapsedHeight);
 						animation->setEndValue(targetGeometryFolded);
-	
+
 						animation->start(QAbstractAnimation::DeleteWhenStopped);
 					});
 
@@ -269,4 +255,3 @@ void mainPanel::mouseReleaseEvent(QMouseEvent* release) {
 		}
 	}
 }
-

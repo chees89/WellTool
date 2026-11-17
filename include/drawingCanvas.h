@@ -12,6 +12,20 @@
 #include <QKeyEvent>
 #include <QImage>
 #include <QFileDialog>
+#include <QWidget>
+#include <QMouseEvent>
+#include <QVector>
+#include <QColor>
+#include <QPainter>
+#include <QMenu>
+#include <QColorDialog>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QSlider>
+#include <QDebug>
+#include <cmath>
+#include <QPushButton>
+#include <QKeyEvent>
 
 struct Stroke {
     QVector<QPoint> points;
@@ -19,7 +33,7 @@ struct Stroke {
     int width;
 };
 
-enum class ActionType { 
+enum class ActionType {
     Draw, Erase
 };
 

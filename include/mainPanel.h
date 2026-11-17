@@ -13,6 +13,20 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QScrollArea>
+#include "screenDefinition.h"
+#include "saveTheme.h"
+#include "themeLoader.h"
+#include "drawingCanvas.h"
+#include "notesWidget.h"
+#include "calculator.h"
+#include <QWidget>
+#include <QDebug>
+#include <algorithm>
+#include <QApplication>
+#include <QGraphicsOpacityEffect>
+#include <QScrollArea>
+#include <QPushButton>
+#include <QResizeEvent>
 
 class mainPanel : public QWidget {
 Q_OBJECT
@@ -33,9 +47,9 @@ protected:
 	bool isExpanded = false;
 	bool isDragging = false;
 	bool isResizing = false;
-	
+
 	QPoint mousePosResize;
-	QSize startSizeResize; 
+	QSize startSizeResize;
 
 	QPoint mousePos;
 	QRect startGeometry;

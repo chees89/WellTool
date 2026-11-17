@@ -1,14 +1,12 @@
 #pragma once
-#include <QPlainTextEdit>
 #include <QString>
-#include <QFile>
-#include <QFileDialog>
-#include <QTextStream>
 #include <QWidget>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QPushButton>
-#include <QColorDialog>
-#include <QPrinter>
+
+class QPlainTextEdit;
+class QPlainTextEdit;
+class QPushButton;
 
 class notesWidget : public QWidget {
     Q_OBJECT
@@ -29,11 +27,26 @@ private:
     void applyBold();
     void applyItalic();
 
-    QPlainTextEdit* textEdit;
+    QVBoxLayout buttonsLayout;
+    QVBoxLayout notesToolbarLayout;
+    QVBoxLayout notesEditorLayout;
+
+    QHBoxLayout notesPrimaryToolbar;
+    QHBoxLayout notesSecondaryToolbarLayout;
+    QHBoxLayout notesHeaderWidgetLayout;
+    QHBoxLayout notesStatusBarLayout;
+
+    QPlainTextEdit* textEdit = nullptr;
     QString currentFilepath;
     QString sidecarPath(const QString& pdfPath) const;
 
-    QWidget* highlightPopup;
+    QWidget* notesStatusBarWidget = nullptr;
+    QWidget* notesEditorWorkspaceWidget = nullptr;
+    QWidget* notesSecondaryToolbarWidget = nullptr;
+    QWidget* notesToolbarWidget = nullptr;
+    QWidget* notesHeaderWidget = nullptr;
+    QWidget* highlightPopup = nullptr;
+
     QPushButton* highlightButton;
     QPushButton* boldButton;
     QPushButton* italicButton;

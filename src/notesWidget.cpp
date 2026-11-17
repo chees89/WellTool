@@ -1,10 +1,13 @@
 #include "notesWidget.h"
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QFile>
+#include <QFileDialog>
+#include <QColorDialog>
+#include <QPrinter>
+#include <QShortcut>
+#include <QPushButton>
 #include <QTextStream>
 #include <QTextCharFormat>
+#include <QPlainTextEdit>
 
 notesWidget::notesWidget(QWidget* parent) : QWidget(parent),
     currentFilepath() {
@@ -25,7 +28,7 @@ notesWidget::notesWidget(QWidget* parent) : QWidget(parent),
     layout->addWidget(textEdit);
 
     this->setLayout(layout);
-    
+
     connect(save, &QPushButton::clicked, [=]() {
         saveNote();
     });
@@ -40,7 +43,7 @@ notesWidget::notesWidget(QWidget* parent) : QWidget(parent),
 
     highlightPopup = new QWidget(this, Qt::Tool | Qt::FramelessWindowHint);
     highlightButton = new QPushButton("Highlight", highlightPopup);
-    
+
     QVBoxLayout* popupLayout = new QVBoxLayout(highlightPopup);
     popupLayout->setContentsMargins(4, 4, 4, 4);
     popupLayout->addWidget(highlightButton);
@@ -62,6 +65,15 @@ notesWidget::notesWidget(QWidget* parent) : QWidget(parent),
 
     connect(textEdit, &QPlainTextEdit::selectionChanged,
         this, &notesWidget::onSelectionChanged);
+
+    QShortcut* boldShortcut = new QShortcut(QKeySequence::Bold, textEdit);
+    QShortcut* italicShortcut = new QShortcut(QKeySequence::Italic, textEdit);
+
+    connect(boldShortcut, &QShortcut::activated, this, &notesWidget::applyBold);
+    connect(italicShortcut, &QShortcut::activated, this, &notesWidget::applyItalic);
+
+    boldShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    italicShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 }
 
 void notesWidget::onSelectionChanged() {
@@ -107,10 +119,21 @@ void notesWidget::applyHighlight() {
 
 void notesWidget::applyBold() {
     QTextCursor cursor = textEdit->textCursor();
-    if(!cursor.hasSelection()) { highlightPopup->hide(); return; }
+    QTextCharFormat format;
+
+    if(!cursor.hasSelection()) {
+        cursor.select(QTextCursor::WordUnderCursor);
+    }
+
+    if (!cursor.hasSelection()) {
+        bool isBold = textEdit->currentCharFormat().fontWeight() == QFont::Bold;
+        format.setFontWeight(isBold ? QFont::Normal : QFont::Bold);
+        textEdit->mergeCurrentCharFormat(format);
+        return;
+    }
 
     bool isBold = cursor.charFormat().fontWeight() == QFont::Bold;
-    QTextCharFormat format;
+
     format.setFontWeight(isBold ? QFont::Normal : QFont::Bold);
     cursor.mergeCharFormat(format);
 
@@ -121,10 +144,21 @@ void notesWidget::applyBold() {
 
 void notesWidget::applyItalic() {
     QTextCursor cursor = textEdit->textCursor();
-    if(!cursor.hasSelection()) { highlightPopup->hide(); return; }
+    QTextCharFormat format;
+
+    if(!cursor.hasSelection()) {
+        cursor.select(QTextCursor::WordUnderCursor);
+    }
+
+    if(!cursor.hasSelection()) {
+        bool isItalic = textEdit->currentCharFormat().fontItalic();
+        format.setFontItalic(!isItalic);
+        textEdit->mergeCurrentCharFormat(format);
+        return;
+    }
 
     bool isItalic = cursor.charFormat().fontItalic();
-    QTextCharFormat format;
+
     format.setFontItalic(!isItalic);
     cursor.mergeCharFormat(format);
 
@@ -139,7 +173,7 @@ void notesWidget::writeToFile(const QString& path) {
     printer.setOutputFileName(path);
 
     textEdit->document()->print(&printer);
-    
+
     QFile sidecar(sidecarPath(path));
     if(sidecar.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&sidecar);
